@@ -1,0 +1,401 @@
+<!doctype html>
+<!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]><html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if IE 9 ]><html class="ie9 no-js"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->  
+<head>
+  <meta charset="utf-8" />
+  <!--[if IE]><meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1' /><![endif]-->
+
+  <title>
+    {% if template == 'index' %}{% if page_title contains 'Welcome' %}{{ shop.name }} &ndash; Welcome{% else %}{{ page_title }}{% endif %}{% elsif template == '404' %}Page Not Found{% elsif page_title contains shop.name %}{{ page_title }}{% else %}{{ page_title }} &ndash; {{ shop.name }}{% endif %}
+  </title>
+
+  {% if page_description %}
+  <meta name="description" content="{{ page_description }}" />
+  {% endif %}
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  {{ content_for_header }}
+
+  <meta property="og:site_name" content="{{ shop.name }}" />
+  <meta name="author" content="{{ shop.name }}">
+
+  {% if template contains 'product' %}
+  <meta property="og:type" content="product" />
+  <meta property="og:title" content="{{ product.title | strip_html | escape }}" />
+  {% for image in product.images %}
+  <meta property="og:image" content="http:{{ image.src | product_img_url: 'grande' }}" />
+  <meta property="og:image:secure_url" content="https:{{ image.src | product_img_url: 'grande' }}" />
+  {% endfor %}
+  <meta property="og:price:amount" content="{{ product.price | money_without_currency }}" />
+  <meta property="og:price:currency" content="{{ shop.currency }}" />
+  {% elsif template contains 'article' %}
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="{{ article.title | strip_html | escape }}" />  
+  {% assign img_tag = '<' | append: 'img' %}
+  {% if article.content contains img_tag %}
+  {% assign src = article.content | split: 'src="' %}
+  {% assign src = src[1] | split: '"' | first | remove: 'https:' | remove: 'http:' %}
+  {% if src %}
+  <meta property="og:image" content="http:{{ src }}" />
+  <meta property="og:image:secure_url" content="https:{{ src }}" />
+  {% endif %}
+  {% endif %}
+  {% else %}
+  {% if settings.use_logo %}
+  <meta property="og:image" content="http:{{ 'logo.png' | asset_url }}" />
+  <meta property="og:image:secure_url" content="https:{{ 'logo.png' | asset_url }}" />
+  {% endif %}  
+  <meta property="og:title" content="{{ page_title | escape }}" />
+  <meta property="og:type" content="website" />
+  {% endif %}
+  
+  {% if page_description %}
+  <meta property="og:description" content="{{ page_description }}" />
+  {% endif %}
+  <meta property="og:url" content="{{ canonical_url }}" />
+  <meta property="og:site_name" content="{{ shop.name }}" />
+  
+  <link rel="shortcut icon" type="image/x-icon" href="{{ 'favicon.png' | asset_url }}">
+
+  <link href='//fonts.googleapis.com/css?family={{settings.heading-font}}:300,400,500,600' rel='stylesheet' type='text/css'>
+  <link href='//fonts.googleapis.com/css?family={{settings.body-font}}:light,normal,bold' rel='stylesheet' type='text/css'>
+
+  {{ 'icomoon.css' | asset_url | stylesheet_tag }}
+  {{ 'bootstrap.scss.css' | asset_url | stylesheet_tag }}
+  {{ 'jquery.mmenu.all.css' | asset_url | stylesheet_tag }}
+  {{ 'royalslider.css' | asset_url | stylesheet_tag }}
+  {{ 'altron.scss.css' | asset_url | stylesheet_tag }}
+
+  <!--[if lt IE 9]>
+  {{ '//html5shiv.googlecode.com/svn/trunk/html5.js' | script_tag }}
+  <![endif]-->
+  
+  <!--[if lt IE 8]>
+  {{ 'json2.js' | shopify_asset_url | script_tag }}
+  <![endif]-->
+
+  <!-- {{ 'option_selection.js' | shopify_asset_url | script_tag }} -->
+
+  {{ '//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js' | script_tag }}
+  {{ '//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.min.js' | script_tag}} 
+  {{ 'altron-vendors.js' | asset_url | script_tag }}
+  {{ 'altron.js' | asset_url | script_tag }}
+  {{ 'jquery.royalslider.min.js' | asset_url | script_tag }}
+  
+  {% if template contains 'product' %}
+  {{ 'owl.carousel.min.js' | asset_url | script_tag }}
+  {{ 'owl.carousel.css' | asset_url | stylesheet_tag }}
+  {% endif %}
+  
+  {{ 'option_selection.js' | shopify_asset_url | script_tag }}
+
+
+</head>
+
+<body>
+
+  <div class="notification">
+    <p class="m0 p0"></p>
+  </div>
+
+  {% include 'product-modal' %}
+  
+  <nav role='navigation' id="nav-menu" style="opacity: 0; visibility: hidden;">
+    <div> 
+      <ul class="list">
+        {% for link in linklists[settings.main_linklist].links %}
+        <li>
+          {% assign words = link.title | split: '/' %}
+          <a href="{{ link.url }}">{{ words.first }}</a>
+          {% unless linklists[link.handle] == empty %}
+          <ul>
+            {% for link in linklists[link.handle].links %}
+            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+            {% endfor %}
+          </ul>
+          {% endunless %}
+        </li>
+        {% endfor %}
+      </ul>
+
+        <ul class="list">
+          {% for link in linklists[settings.header-linklist].links %}
+          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+          {% endfor %}
+          {% if shop.customer_accounts_enabled %}
+          <li>
+            {% if customer %}
+            <a href="/account">
+              Account 
+              {% if tagline %}<span>Hi, {{ customer.first_name }}</span>{% endif %}
+            </a>
+            {% else %}
+            <a href="/account/login">
+              Sign Up / Login 
+              {% if tagline %}<span>Or create account</span>{% endif %}
+            </a>
+            {% endif %}
+          </li>
+          {% endif %}
+        </ul>
+
+      <div class="icon-social">
+        {% if settings.twitter-url.size > 0 %}<a href="{{ settings.twitter-url }}" class="icon-twitter"></a>{% endif %}
+        {% if settings.facebook-url.size > 0 %}<a href="{{ settings.facebook-url }}" class="icon-facebook"></a>{% endif %}
+        {% if settings.pinterest-url.size > 0 %}<a href="{{ settings.pinterest-url }}" class="icon-pinterest"></a>{% endif %}
+        {% if settings.googleplus-url.size > 0 %}<a href="{{ settings.googleplus-url }}" class="icon-googleplus"></a>{% endif %}
+        {% if settings.instagram-url.size > 0 %}<a href="{{ settings.instagram-url }}" class="icon-instagram"></a>{% endif %}
+        {% if settings.youtube-url.size > 0 %}<a href="{{ settings.youtube-url }}" class="icon-youtube"></a>{% endif %}
+        {% if settings.vimeo-url.size > 0 %}<a href="{{ settings.vimeo-url }}" class="icon-vimeo"></a>{% endif %}
+        {% if settings.tumblr-url.size > 0 %}<a href="{{ settings.tumblr-url }}" class="icon-tumblr"></a>{% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- SHOPPING CART -->
+  {% include 'shopping-cart' %}
+  
+  
+  <!-- mmenu -->
+  <div>
+
+    {% if settings.display-promo %}
+    <div class="promo">
+      <div class="container">
+        {{ settings.promo-content }}
+      </div>
+    </div>
+    {% endif %}
+<div class="tan-bg">
+    <div class="container">
+
+      <div class="visible-xs top row">
+        <div class="col-xs-6"><a href="#nav-menu"><span class="icon-list fs20"></span> Menu</a></div>
+        <div class="col-xs-6 right"><a href="#shopping-cart"><span class="icon-cart fs15"></span> Cart (<span class="item-count">{{ cart.item_count }}</span>)</a></div>
+      </div>
+      <div class="hidden-xs row">  
+        <ul class="clearfix header-linklist">
+          {% for link in linklists[settings.header-linklist].links %}
+          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+          {% endfor %}
+          {% if shop.customer_accounts_enabled %}
+          <li>
+            {% if customer %}
+            <a href="/account">
+              Account 
+              {% if tagline %}<span>Hi, {{ customer.first_name }}</span>{% endif %}
+            </a>
+            {% else %}
+            <a href="/account/login">
+              Sign Up / Login 
+              {% if tagline %}<span>Or create account</span>{% endif %}
+            </a>
+            {% endif %}
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <header class="pagehead row">
+        <section class="logo col-xs-12 col-sm-6 col-lg-8">
+          <a href="{{shop.url}}">
+            {% if settings.use_logo %}
+            <img src="{{ 'logo.png' | asset_url }}" alt="{{ shop.name }}" class="m0 p0" />
+            {% else %}
+            <h1 class="p0 m0">{{shop.name}}</h1>
+            {% endif %}
+          </a>
+        </section>
+
+        <div class="col-xs-12 col-sm-6 col-lg-4">
+          <div class="search-box right">
+            <div class="search">
+              <form action="/search" method="get" id="search-form">
+                <input type="text" name="q" value="{{ search.terms | escape }}" placeholder="Find">
+                <span class="icon-search fs20 find"></span>
+              </form>
+            </div>
+            <a style="background-color: #fff;" href="#shopping-cart" class="icon-cart fs15">
+              <span class="item item-count">{{ cart.item_count }}</span>    
+            </a>
+          </div>
+        </div>
+      </header>
+
+      {% assign tagline = false %}
+      <nav class="hidden-xs menu">
+        <ul class="reset li-inline">
+          {% for link in linklists[settings.main_linklist].links %}
+          <li>
+            <h4>
+              {% assign words = link.title | split: '/' %}
+              <a {% unless linklists[link.handle] == empty %} href="{{ link.url }}" data-toggle="x{{ words.first | split: ' ' | join: '-' }}/show" {% else %} href="{{ link.url }}" {% endunless %}>
+               <!-- {% unless linklists[link.handle] == empty %}+ {% endunless %}-->
+               {{ words.first }}
+               {% unless words.first == words.last %}
+               <span>{{ words.last }}</span>
+               {% assign tagline = true %}
+               {% endunless %}
+             </a>
+           </h4>     
+         </li>
+         {% endfor %}
+       </ul>
+     </nav>
+
+     {% for link in linklists[settings.main_linklist].links %}
+     {% assign words = link.title | split: '/' %}
+     {% unless linklists[link.handle] == empty %}
+     <div class="sub-nav hidden-xs x{{ words.first | split: ' ' | join: '-' }}">
+      <!-- <span class="close" data-toggle="x{{ words.first | split: ' ' | join: '-' }}/show">Close</span> -->
+      <div class="category-preview">
+        {% assign: collectionImg = link.handle | append: '-img.jpg' %}
+        <img src="{{ collectionImg | asset_url }}" alt="">
+        {% assign: collectionDesc = link.handle %}
+        <a href="/pages/{{ collectionDesc }}">Learn more about this Category</a>
+      </div>
+      <div class="sub-categories">
+        <h3>Categories</h3>
+        <ul class="reset">
+          {% for link in linklists[link.handle].links %}
+          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% assign: collectionList = link.handle | append: '-collections' %}
+      {% if linklists[collectionList].links != '' %}
+      <div class="sub-collections">
+        <h3>Collections</h3>
+        <ul class="reset">
+          {% for link in linklists[collectionList].links %}
+          <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+    {% endunless %}
+    {% endfor %}
+    </div>
+    </div>
+    <div class="container">
+
+    
+    {{ content_for_layout }}
+    
+    
+  </div>
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-5 col-md-4">
+          <img class="footer-img" src="{{ 'footer-img.jpg' | asset_url }}">
+        </div>
+        <div class="col-xs-12 col-sm-5 col-md-3">
+          <h4 class="serif">{{ shop.name }}</h4>
+
+
+          {{ settings.footer-content }}
+
+        </div>
+        <div class="col-xs-12 col-sm-5 col-md-5">
+          <h4 class="serif">
+            {% unless settings.footer-list-title == blank %}
+            {{ settings.footer-list-title }}
+            {% else %}
+            Quick Links
+            {% endunless %}
+          </h4>
+
+          <ul>
+            {% for link in linklists[settings.footer-linklist].links %}
+            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+   <!--   <div class="col-xs-12 col-sm-3 col-md-2">
+        <h4>Follow Us</h4>
+
+        <div class="icon-social">
+          {% if settings.twitter-url.size > 0 %}<a href="{{ settings.twitter-url }}" class="icon-twitter"></a>{% endif %}
+          {% if settings.facebook-url.size > 0 %}<a href="{{ settings.facebook-url }}" class="icon-facebook"></a>{% endif %}
+          {% if settings.pinterest-url.size > 0 %}<a href="{{ settings.pinterest-url }}" class="icon-pinterest"></a>{% endif %}
+          {% if settings.googleplus-url.size > 0 %}<a href="{{ settings.googleplus-url }}" class="icon-googleplus"></a>{% endif %}
+          {% if settings.instagram-url.size > 0 %}<a href="{{ settings.instagram-url }}" class="icon-instagram"></a>{% endif %}
+          {% if settings.youtube-url.size > 0 %}<a href="{{ settings.youtube-url }}" class="icon-youtube"></a>{% endif %}
+          {% if settings.vimeo-url.size > 0 %}<a href="{{ settings.vimeo-url }}" class="icon-vimeo"></a>{% endif %}
+          {% if settings.tumblr-url.size > 0 %}<a href="{{ settings.tumblr-url }}" class="icon-tumblr"></a>{% endif %}
+        </div>
+      </div> -->
+
+     <!-- {% if settings.enable-newsletter %}
+      <div class="col-xs-12 col-sm-4 col-md-4 row">
+        <h4>Newsletter</h4>
+
+        <form action="{{ settings.mailchimp-url }}" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+          <input type="email" value="" name="EMAIL" placeholder="Enter your email">
+          <button type="submit" id="sign_up" name="subscribe" class="button clr2">Subscribe</button>
+        </form>
+      </div>-->
+
+      <!-- <div class="col-xs-12 col-sm-12 col-md-2">
+
+     {% else %}
+        <div class="col-xs-12 col-sm-4 col-md-6">
+      {% endif %} 
+
+        <h4>Back to top</h4>
+        <a href="" class="scrollup icon-arrow-up2 fs30"></a>
+      </div>-->
+    </div>
+
+
+    <div class="end-footer row">
+      <div class="col-lg-6 hidden-xs hidden-sm">
+        (Shortcuts) M &rarr; Menu / C &rarr; Cart / Esc &rarr; Close everything
+      </div>
+      <div class="col-sm-12 col-lg-6 col-xs-12 end">
+        © {{ 'now' | date: "%Y" }} {{ shop.name }}
+      </div>
+    </div>
+
+<!--     <div class="payment">
+      {% if settings.amex %} <span class='payment-icon amex'></span> {% endif %}
+      {% if settings.cirrus %} <span class='payment-icon cirrus'></span> {% endif %}
+      {% if settings.discover %} <span class='payment-icon discover'></span> {% endif %}
+      {% if settings.google-wallet %} <span class='payment-icon google-wallet'></span> {% endif %}
+      {% if settings.maestro %} <span class='payment-icon maestro'></span> {% endif %}
+      {% if settings.mastercard %} <span class='payment-icon mastercard'></span> {% endif %}
+      {% if settings.paypal %} <span class='payment-icon paypal'></span> {% endif %}
+      {% if settings.visa %} <span class='payment-icon visa'></span> {% endif %}
+    </div> -->
+
+  </div>
+</footer>
+</div>  
+<script> window.m_format = "{{shop.money_format}}"; </script>
+
+{% assign templates = "index collection list-collections product search" | split : ' ' %}
+{% for _template in templates %}
+{% if template contains _template %}
+{{ 'grid.altron.js' | asset_url | script_tag }}
+{% endif %}
+{% endfor %}
+
+<!-- Begin Recently Viewed Products -->
+{{ '//ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js' | script_tag }}
+{{ 'jquery.products.min.js' | asset_url | script_tag }}
+{% if template contains 'product' %}
+<script>
+Shopify.Products.recordRecentlyViewed();
+</script>
+{% endif %}
+<!-- End Recently Viewed Products -->
+
+
+</body>
+</html>

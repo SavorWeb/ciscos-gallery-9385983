@@ -1,0 +1,19 @@
+{% assign disp_opt = shop.metafields.wishlist.display_option %}
+
+<style>
+  .a-wishlist { line-height: 15px; margin-bottom: 10px; }
+  .a-wishlist img { height: 13px; margin-left: 6px; display:none; }
+</style>
+
+<div class="a-wishlist">
+  {% if customer %}
+    <a type="anchor" href="javascript:void(0);" id='{{product.id}}' cust_id='{{customer.id}}' class="addToFavorite add_{{product.id}}">Add to My Collection</a>
+    <img src="{{'icn_loading.gif' | asset_url }}" />
+  {% else %}
+  	<a type="anchor" href="javascript:void(0);" id='{{product.id}}' cust_id='' class="notLoggedIn">Add to My Collection</a>
+  {% endif %}
+</div>
+
+
+<div class="overlay" style="display:none; background-color: transparent; height: 45px; margin: 6px 0 0 -3px; position: absolute; width: 55px; z-index: 1000;">&nbsp;</div>
+<script src="http://shopiapps.in/wishlistapp/addtowishlist.js" type="text/javascript"></script>

@@ -1,0 +1,218 @@
+var array, cols, getMinimum, grid, maxOfArray, options, reset, updateHeight;
+
+cols = 0;
+
+array = [];
+
+{%raw%}
+var handleTemplate;
+handleTemplate = "<li class=\"pin product\">\n  <div class=\"product-wrap\">\n    <a href=\"{{ url }}\"><img src=\"{{ images.[0] }}\"></a>\n  </div>\n\n  <div class=\"meta\">\n    <h4>{{ title }}</h4>\n    <span class=\"price\">\n      {{money price}}\n      \n      {{#lt price compare_at_price_max}}\n        <span class=\"old-price\">{{money compare_at_price_max}}</span>\n      {{/lt}}</span>\n    </span>\n    <a href=\"{{ url }}\" data-show-modal=\"{{handle}}\" class=\"icon-eye\"></a>\n  </div>\n</li>";
+{%endraw%}
+ptemplate = Handlebars.compile(handleTemplate);
+
+options = {
+  width: 30,
+  offsetX: 5,
+  offsetY: 50,
+  container: '.grid',
+  pins: '.pin',
+  marginTop: 0
+};
+
+reset = function(col, opt) {
+  var i, _i, _ref, _results;
+  if (col && opt) {
+    $.extend(options, opt);
+    cols = col;
+  } else {
+    if ($(window).width() <= 400) {
+      $.extend(options, {
+        width: 100,
+        offsetX: 0
+      });
+      cols = 1;
+    } else if ($(window).width() > 400 && $(window).width() <= 768) {
+      $.extend(options, {
+        width: 45,
+        offsetX: 10
+      });
+      cols = 2;
+    } else if ($(window).width() > 768 && $(window).width() <= 992) {
+      $.extend(options, {
+        width: 30,
+        offsetX: 5
+      });
+      cols = 3;
+    } else {
+      $.extend(options, {
+        width: 22,
+        offsetX: 4
+      });
+      cols = 4;
+    }
+  }
+  array = [];
+  _results = [];
+  for (i = _i = 0, _ref = cols - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+    _results.push(array[i] = options.marginTop);
+  }
+  return _results;
+};
+
+getMinimum = function() {
+  var i, min, _i, _ref;
+  min = 0;
+  for (i = _i = 0, _ref = array.length; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+    if (array[min] > array[i]) {
+      min = i;
+    }
+  }
+  return min;
+};
+
+updateHeight = function(min, height) {
+  return array[min] += height;
+};
+
+maxOfArray = function() {
+  return Math.max.apply(Math, array);
+};
+
+grid = {
+  setBlocks: function(col, opt) {
+    reset(col, opt);
+    $('.loader').hide();
+    return $(options.container).find(options.pins).each(function() {
+      var height, min, _left, _top;
+      min = getMinimum();
+      _left = min * (options.width + options.offsetX);
+      _top = array[min];
+      $(this).css({
+        width: "" + options.width + "%",
+        left: "" + _left + "%",
+        top: _top,
+        visibility: 'visible'
+      });
+      height = $(this).outerHeight(true) + options.offsetY;
+      updateHeight(min, height);
+      return $(options.container).css({
+        height: maxOfArray() - options.offsetY
+      });
+    });
+  },
+  addPin: function(product)
+  {
+    var el = $(ptemplate(product));
+    
+    $(options.container).append(el);
+    
+    $(el).find("img").load(function() {
+      
+      var height, min, _left, _top;
+      min = getMinimum();
+      _left = min * (options.width + options.offsetX);
+      _top = array[min];
+      $(el).css({
+        width: "" + options.width + "%",
+        left: "" + _left + "%",
+        top: _top,
+        visibility: 'visible'
+      });
+      height = $(el).outerHeight(true) + options.offsetY;
+      updateHeight(min, height);
+      return $(options.container).css({
+        height: maxOfArray() - options.offsetY
+      });
+    }).each(function() {
+      if(this.complete) $(this).load();
+    });
+  }
+};
+var windowWidth = $(window).width();
+// Liquid capture since the function repeats
+{% capture grid %}
+  if($('.grid1').length > 0) // if the page has .grid1 element; run custom options
+  {
+    //console.log('entered');
+    if ($(window).width() <= 400) {
+      //console.log('400 px');
+      grid.setBlocks(1, {
+        container: '.grid1',
+        width: 100,
+        offsetX: 0,
+        offsetY: 15,
+      });
+      grid.setBlocks(1, {
+        container: '.grid2',
+        width: 100,
+        offsetX: 0,
+        offsetY: 15,
+      });
+    } else if ($(window).width() > 400 && $(window).width() <= 768) {
+      //console.log('400 to 768 px');
+      grid.setBlocks(2, {
+        container: '.grid1',
+        width: 45,
+        offsetX: 10
+      });
+      grid.setBlocks(2, {
+        container: '.grid2',
+        width: 45,
+        offsetX: 10
+      });
+    } else if ($(window).width() > 768 && $(window).width() <= 992) {
+      //console.log('768 to 992');
+      grid.setBlocks(3, {
+        container: '.grid1',
+        width: 30,
+        offsetX: 5
+      });
+      grid.setBlocks(3, {
+        container: '.grid2',
+        width: 30,
+        offsetX: 5
+      });
+    } else {
+      //console.log('992 +');
+      grid.setBlocks(4, {
+        container: '.grid1',
+        width: 22,
+        offsetX: 4
+      });
+      grid.setBlocks(4, {
+        container: '.grid2',
+        width: 22,
+        offsetX: 4
+      });
+    }
+    
+
+  }
+  else
+    grid.setBlocks();  // if not run the default
+{% endcapture %}
+
+$(window).load(function() {
+  setTimeout(function(){
+    {{ grid }}
+  }, 300);
+  
+  //grid.setBlocks();
+  //{{ grid }}  // pulled in through the previous capture
+});
+
+$(window).resize(function() {
+  {{ grid }}
+});
+ 
+
+
+/// HTML CODE BELOW
+
+// <ul class="grid grid1">
+// </ul> 
+ 
+// <ul class="grid grid2">
+// </ul>
+
+// Since theres an element with class .grid1 on the page each grid gets separate calls to the setBlocks function

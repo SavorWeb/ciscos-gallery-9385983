@@ -1,0 +1,19 @@
+{% if product %}
+<li class="pin product" id="product-{{ forloop.index | plus:paginate.current_offset }}">
+  <div class="product-wrap">
+    <a href="{{ product.url | within: collection }}"><img src="{{ product.featured_image | product_img_url: 'large' }}" alt="{{ product.featured_image.alt | escape }}"></a>
+  </div>
+
+  <div class="meta">
+    <h4>{{ product.title }}</h4>
+    <span class="price">
+      {{ product.price | money }}
+      
+      {% if product.compare_at_price_max > product.price %}
+        <span class="old-price">{{ product.compare_at_price_max | money }}</span>
+      {% endif %}
+    </span>
+    <a href="{{ product.url }}" data-show-modal="{{product.handle}}" class="icon-eye"></a>
+  </div>
+</li>
+{% endif %}

@@ -1,0 +1,15 @@
+<hr>
+    <p class="meta-data">
+    {% if product.metafields.local.period > '' %}
+      <b>Period:</b> {{ product.metafields.local.period }} <br>
+    {% endif %}
+    {% if product.metafields.local.origin > '' %}
+      <b>Origin:</b> {{ product.metafields.local.origin }} <br>
+    {% endif %}
+    {% if product.metafields.local.size > '' %}
+      <b>Size:</b> {{ product.metafields.local.size }} <br>
+    {% endif %}
+    {% if product.metafields.local.condition > '' %}
+      <b>Condition:</b> {{ product.metafields.local.condition }}
+    {% endif %}
+    </p>

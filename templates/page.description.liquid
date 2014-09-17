@@ -1,0 +1,24 @@
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">{{ page.title }}</li>
+</ol>
+<div>
+
+{% assign: pageImg = page.handle | append: '-banner.jpg' %}
+
+{% if pageImg > '' %}
+<div class="cat-head" style="background: url({{ pageImg | asset_url }}) no-repeat center center;">
+  {% else %}
+  <div class="cat-head">
+    {% endif %}
+    <h1>{{ page.title }}</h1>
+
+    <p class="desc">
+      Category Descriptions
+    </p>
+
+  </div>
+	<div style="margin-top: 25px;">
+	    {{ page.content }}
+	</div>    
+</div> 

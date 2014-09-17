@@ -1,0 +1,47 @@
+<!-- {% if disp_opt == 'hearticon' or page.handle == 'my-wishlist' %}
+<div class="div-wishlist">
+<style>
+.div-wishlist{width:36px;display:inline-block;height:36px;vertical-align:top;}
+.hearted{background:url('{{'hearted.png' | asset_url }}') no-repeat scroll 0 -3px transparent;display:inline-block;height:36px;background-size:36px;position:relative;}
+.hearted .removeFavorite{color:#FFF;background:none repeat scroll 0 0 transparent!important;border:0 none;font-size:13px;height:36px;position:relative;width:36px;box-shadow:none;}
+.hearted .addToFavorite{color:red;background:none repeat scroll 0 0 transparent!important;border:0 none;font-size:18px;height:40px;position:relative;width:52px;margin:7px -1px;}
+.hearted img,.nothearted img{left:10px;top:10px;position:absolute;display:none;}
+.nothearted{background:url('{{'nothearted.png' | asset_url }}') no-repeat scroll 0 -3px transparent;display:inline-block;height:36px;position:relative;background-size:36px;}
+.nothearted .addToFavorite{color:red;background:none repeat scroll 0 0 transparent!important;border:0 none;font-size:13px;height:36px;position:relative;width:36px;box-shadow:none;}
+.nothearted .notLoggedIn{color:red;background:none repeat scroll 0 0 transparent!important;border:0 none;font-size:13px;height:36px;position:relative;width:36px;display:inline-block!important;box-shadow:none;}
+.nothearted .notLoggedIn:focus,.hearted .removeFavorite:focus,.nothearted .addToFavorite:focus{box-shadow:none;}
+</style>
+
+{% assign tot_user_heart = 0 %}
+{% assign mf = product.metafields.wishlist %}
+
+{% unless mf == empty %}
+{% assign tot_user_heart=product.metafields.wishlist.TotalUsersWish %}
+{% endunless %}
+
+{% if customer %}
+  	{% assign all_users=product.metafields.wishlist.UsersList %}
+  	{% capture user_list %}{{all_users}}{% endcapture %}
+	{% capture cust_id %}{{customer.id}}{% endcapture %}
+
+  	{% if user_list contains cust_id %}
+    	<div class="hearted"> 
+          <input class="removeFavorite remove_{{product.id}}" id='{{product.id}}' cust_id='{{customer.id}}' type='button' value='{{tot_user_heart}}' >
+    		<img src="{{'ajax-loader.gif' | asset_url }}" /> 
+    	</div>
+    {% else %}
+    	<div class="nothearted"> 
+      		<input class="addToFavorite add_{{product.id}}" id='{{product.id}}' cust_id='{{customer.id}}' type='button' value='{{tot_user_heart}}'>
+      		<img src="{{'ajax-loader.gif' | asset_url }}" />
+    	</div>
+	{% endif %}
+
+{% else %}
+<div class="nothearted"> 
+  <input class="notLoggedIn" id='{{product.id}}' cust_id='' type='button' value='{{tot_user_heart}}'>
+</div>
+{% endif %}
+</div> -->
+<!-- {% elsif disp_opt == "link" and page.handle != "my-wishlist" %} -->
+things
+<!-- {% endif %} -->

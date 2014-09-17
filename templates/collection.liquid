@@ -1,0 +1,182 @@
+<div class="cat-details">
+  <ol class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li><a href="{{ collection.url }}">{{ collection.title }}</a></li>
+    
+<!--     {% unless paginate.pages == 0 %}      
+    <li class="active">Page {{ paginate.current_page }} of {{ paginate.pages }}</li>
+    {% endunless %} -->
+  </ol>
+  {% for link in linklists[settings.main_linklist].links %}
+    {% if collection.handle == link.handle %}
+      <a class="collectionDesc" href="/pages/{{ collection.handle }}">Category Description</a>
+    {% endif %}
+  {% endfor %}
+</div>
+{% if collection.image > '' %}
+
+  <div class="cat-head" style="background: url({{ collection.image | collection_img_url: 'master' }}) no-repeat center center;">
+
+{% elsif collection.image < '' %}
+
+  {% assign: collectionBanner = collection.handle | append: '-banner.jpg' %}
+  <div class="cat-head" style="background: url({{ collectionBanner | asset_url }}) no-repeat center center;">
+
+{% else %}
+  <div class="cat-head">
+{% endif %}
+  <h1>{{ collection.title }}</h1>
+{% if collection.description.size > 0 %}
+  <p class="desc">
+    {{ collection.description }}
+  </p>
+{% endif %}
+</div>
+
+    <div class="collection-title">
+
+      <div class="filter-bar">
+        {% if current_tags.size > 0 %} 
+        <div class="filter">
+          <div class="title">
+            {% if current_tags.size > 0 %} 
+            {% for tag in current_tags %}
+            {{ tag | capitalize }}
+            {% endfor %}
+            {% else %} 
+            Sub-Categories
+            {% endif %}
+            <span class="icon-arrow-down arrow"></span>
+          </div>
+
+          <ul class="reset">
+            <li><a href="/collections/{{ collection.handle }}">All Categories</a></li>
+            {% for link in linklists[collection.handle].links %}
+            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+        {% assign: collectionHandle = collection.handle | append: '-collections' %}
+        {% assign: collectionTitle = collection.title | append: ' Collections' %}
+        {% if linklists[collectionHandle].links != '' %}
+        <div class="filter">
+          <div class="title">
+
+            Collections
+
+            <span class="icon-arrow-down arrow"></span>
+          </div>
+
+          <ul class="reset">
+            <li><a href="/collections/{{ collection.handle }}">All Collections</a></li>
+            {% for link in linklists[collectionHandle].links %}
+            <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <div class="filter sorting">
+          <select id="sort-by">
+            <option value="manual">Featured</option>
+            <option value="price-ascending">Price: Low to High</option>
+            <option value="price-descending">Price: High to Low</option>
+            <option value="title-ascending">A-Z</option>
+            <option value="title-descending">Z-A</option>
+            <option value="created-ascending">Oldest to Newest</option>
+            <option value="created-descending">Newest to Oldest</option>
+            <!-- <option value="best-selling">Best Selling</option> -->
+          </select>
+
+          <script>
+            Shopify.queryParams = {};
+            if (location.search.length) {
+              for (var aKeyValue, i = 0, aCouples = location.search.substr(1).split('&'); i < aCouples.length; i++) {
+                aKeyValue = aCouples[i].split('=');
+                if (aKeyValue.length > 1) {
+                  Shopify.queryParams[decodeURIComponent(aKeyValue[0])] = decodeURIComponent(aKeyValue[1]);
+                }
+              }
+            }
+            jQuery('#sort-by')
+            .val('{{ collection.sort_by | default: collection.default_sort_by  }}')
+            .bind('change', function() {
+              Shopify.queryParams.sort_by = jQuery(this).val();
+              location.search = jQuery.param(Shopify.queryParams);
+            });
+          </script>
+        </div>
+
+      </div>
+    </div>
+
+    {% unless collection.all_products_count > 0 %}
+    <p class="center">Sorry, there are no items in this collection.</p>
+    {% else %}
+    <ul class="grid collection-matrix">
+      <div class="loader center">{{ 'loading.GIF' | asset_url | img_tag }}</div>
+      <!-- START PRODUCTS -->
+      {% for product in collection.products limit:25 %}
+      <!-- START PRODUCT {{ forloop.index | plus:paginate.current_offset }} -->
+
+      {% include 'pin' with product %}
+
+      <!-- END PRODUCT {{ forloop.index | plus:paginate.current_offset }} -->
+      {% endfor %}
+      <li id="product-list-foot"></li>
+    </ul>
+    {% endunless %}
+
+    <div class="load">
+      <a class="btn type1" id="load-more">
+        LOAD MORE
+      </a>
+    </div>
+
+    {% if paginate.next %}
+    <div id="more"><p>&darr; <a href="{{ paginate.next.url }}">More</a></p></div>        
+    {% endif %}
+    <script>
+      var navpoint = 0;
+      var infinite = [];
+      {% for product in collection.products offset:10 %}
+      infinite.push({{product | json }});
+      {% endfor %}
+
+      load = function()
+      {
+        for(var i =0; i < 10; i++)
+        {
+          if(navpoint<(infinite.length-1))
+          {
+            grid.addPin(infinite[navpoint]);
+            navpoint++;
+          }
+        }
+
+        if(navpoint >= (infinite.length-1))
+        {
+          $('.load').fadeOut();
+        }
+      };
+
+      $(window).scroll(function(){
+        if  ($(window).scrollTop() == $(document).height() - $(window).height()){
+          load();
+        }
+      }); 
+
+      $("#load-more").click(function() {
+        load();
+      });
+    </script>
+
+    <script>
+      $(document).ready(function() {
+        $(".filter").click(function() {
+          $(this).children('ul').slideToggle("fast");
+          $(this).children(".title").children(".arrow").toggleClass("rotate");
+        });
+      });
+    </script>

@@ -1,0 +1,145 @@
+var array2, cols2, getMinimum2, grid2, maxOfArray2, options2, reset2, updateHeight2;
+
+cols2 = 0;
+
+array2 = [];
+
+var handleTemplate;
+
+{%raw%}
+	var handleTemplate;
+
+handleTemplate = "<li class=\"pin product\">\n  <div class=\"product-wrap\">\n    <a href=\"{{ url }}\"><img src=\"{{ images.[0] }}\"></a>\n  </div>\n\n  <div class=\"meta\">\n    <h4>{{ title }}</h4>\n    <span class=\"price\">\n      {{money price}}\n      \n      {{#lt price compare_at_price_max}}\n        <span class=\"old-price\">{{money compare_at_price_max}}</span>\n      {{/lt}}</span>\n    </span>\n    <a href=\"{{ url }}\" data-show-modal=\"{{handle}}\" class=\"icon-eye\"></a>\n  </div>\n</li>";
+{%endraw%}
+ptemplate = Handlebars.compile(handleTemplate);
+
+options2 = {
+  width: 30,
+  offsetX: 5,
+  offsetY: 40,
+  container: '.grid2',
+  pins: '.pin',
+  marginTop: 0
+};
+
+reset2 = function(col, opt) {
+  var i, _i, _ref, _results;
+  if (col && opt) {
+    $.extend(options2, opt);
+    cols2 = col;
+  } else {
+    if ($(window).width() <= 400) {
+      $.extend(options2, {
+        width: 100,
+        offsetX: 0,
+        offsetY: 100
+      });
+      cols2 = 1;
+    } else if ($(window).width() > 400 && $(window).width() <= 768) {
+      $.extend(options2, {
+        width: 45,
+        offsetX: 10,
+        offsetY: 100
+      });
+      cols2 = 2;
+    } else if ($(window).width() > 768 && $(window).width() <= 992) {
+      $.extend(options2, {
+        width: 30,
+        offsetX: 5
+      });
+      cols2 = 3;
+    } else {
+      $.extend(options2, {
+        width: 22,
+        offsetX: 4
+      });
+      cols2 = 4;
+    }
+  }
+  array2 = [];
+  _results = [];
+  for (i = _i = 0, _ref = cols2 - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+    _results.push(array2[i] = options2.marginTop);
+  }
+  return _results;
+};
+
+getMinimum2 = function() {
+  var i, min, _i, _ref;
+  min = 0;
+  for (i = _i = 0, _ref = array2.length; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+    if (array2[min] > array2[i]) {
+      min = i;
+    }
+  }
+  return min;
+};
+
+updateHeight2 = function(min, height) {
+  return array2[min] += height;
+};
+
+maxOfArray2 = function() {
+  return Math.max.apply(Math, array2);
+};
+
+grid2 = {
+  setBlocks: function(col, opt) {
+    reset2(col, opt);
+    $('.loader').hide();
+    return $(options2.pins).each(function() {
+      var height, min, _left, _top;
+      min = getMinimum2();
+      _left = min * (options2.width + options2.offsetX);
+      _top = array[min];
+      $(this).css({
+        width: "" + options2.width + "%",
+        left: "" + _left + "%",
+        top: _top,
+        visibility: 'visible'
+      });
+      height = $(this).outerHeight(true) + options2.offsetY;
+      updateHeight2(min, height);
+      return $(options2.container).css({
+        height: maxOfArray2() - options2.offsetY
+      });
+    });
+  },
+  addPin: function(product)
+  {
+    var el = $(ptemplate(product));
+    
+    $(options2.container).append(el);
+    
+    $(el).find("img").load(function() {
+      
+      var height, min, _left, _top;
+      min = getMinimum2();
+      _left = min * (options2.width + options2.offsetX);
+      _top = array2[min];
+      $(el).css({
+        width: "" + options2.width + "%",
+        left: "" + _left + "%",
+        top: _top,
+        visibility: 'visible'
+      });
+      height = $(el).outerHeight(true) + options2.offsetY;
+      updateHeight2(min, height);
+      return $(options2.container).css({
+        height: maxOfArray2() - options2.offsetY
+      });
+    }).each(function() {
+      if(this.complete) $(this).load();
+    });
+  }
+};
+
+window.grid2 = grid2;
+
+$(window).load(function() {
+  return grid2.setBlocks();
+});
+
+$(window).resize(function() {
+  return grid2.setBlocks();
+});

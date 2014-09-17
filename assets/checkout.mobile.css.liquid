@@ -1,0 +1,169 @@
+/*body {
+	background: #fff;
+}
+
+#main, #header, #footer {
+	background: #faf8f7;
+}
+
+#overview {
+	background: none;
+	background-color: #ddd6ba;
+	border: none;
+}
+
+#products {
+	border-right-color: #fff;
+}
+
+#thumbs div {
+	background: #fff;
+	border: none;
+}
+
+#content {
+	padding: 10px 0;
+}*/
+
+/* Undo background and gradient */
+body, #main, #container, #header, #footer {
+  background: #fff !important;
+  font-family: Times, 'Times New Roman', serif;
+}
+
+/* Undo overview background and borders */
+#main #overview {
+  background: #fff;
+  border: none;
+}
+#main #overview > * {
+  border: none;
+}
+#main #thumbs div {
+  border: none;
+}
+
+/* Insert your own logo (upload separately) */
+#logo { 
+  height: 115px;
+  background: url({{ 'logo.png' | asset_url }}) center no-repeat;
+  background-size: 80%;
+}
+
+#header > h1{
+  text-align:center;
+}
+
+/* Hide the name of the store because we got this nifty logo now */
+
+#header > h1 span.title {
+  display:none;
+}
+
+#email, .group, #addresses, #buttons {
+	background: #faf8f7;
+	border: 1px solid #F0E5E6;
+}
+
+#thumbs td {
+	background: none;
+}
+
+#billing {
+	margin-top: 10px;
+}
+
+.active-customer {
+	padding: 0 10px;
+}
+
+input[type="text"], input[type="password"], input[type="telephone"], input[type="email"], textarea, select, input[type="email"], input[type="number"]
+{
+  background: #fff;
+  border: 1px solid transparent;
+  border-radius: 0;
+  outline: none !important;
+  padding: 0 14px;
+  font-size: 14px;
+  @include transition(all 0.1s ease);
+  color: #000000;
+}
+
+input[type="text"]:focus, input[type="password"]:focus, input[type="telephone"]:focus, input[type="email"]:focus, textarea, select, input[type="email"]:focus, input[type="number"]:focus
+  {
+    background: #fff;
+    border: 1px solid #F0E5E6;
+  }
+
+input[type="text"], input[type="email"], input[type="number"], input[type="password"], input[type="telephone"], select
+{
+  height: 30px;
+}
+
+label
+{
+  margin-bottom: 6px;
+  display: block;
+}
+
+textarea
+{
+  padding-top: 10px;
+  padding-bottom: 10px;
+  height: 150px;
+}
+
+.form-group
+{
+  margin-bottom: 15px;
+}
+
+.form-group.or button
+  {  margin-right: 15px; }
+
+.form-group.or button a { margin-left: 5px; }
+
+#shipping-toggle, .sst input {
+	float: left;
+	margin-right: 10px;
+}
+
+#buttons input
+{
+  line-height: 45px;
+  padding: 0 20px !important;
+  margin-right: 10px;
+  text-align: center;
+  cursor: pointer;
+  display: inline-block;
+  text-decoration: none;
+  @include transition(all 0.2s ease);
+  position: relative;
+  border: 0;
+  background-color: #0d5585;
+  color: #fff;
+  font-weight: 300 !important;
+  letter-spacing: 1px;
+  font-family: Helvetica, 'Arial', sans-serif;
+}
+
+#buttons input:hover, #buttons input:active {
+	opacity: 0.8;
+	text-decoration: none;
+}
+
+label {
+	font-family: Helvetica, 'Arial', sans-serif;
+	font-weight: 300;
+}
+
+To change the width of all checkout containers you will need to add the following block to your existing checkout.css.liquid. Simply change the width statement to reflect what you are using on your site.
+
+#container,
+#container.slim,
+#main,
+#container.slim #main,
+#header,
+#container.slim #header,
+#footer,
+#container.slim #footer{width:100%;background:#fff;padding:0}

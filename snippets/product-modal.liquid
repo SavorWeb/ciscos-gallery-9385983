@@ -1,0 +1,118 @@
+<div id="product-modal" class="modal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="row product modal-dialog" id="modal-wrap">
+    {% raw %}
+    <script id="product-template" type="text/x-handlebars-template">
+
+    <span class="close icon-cross" data-close></span>
+
+    <div class="product-image col-xs-12 col-sm-5">
+
+     <div class="product-flex">
+
+      <div class="flexslider" id="product-modal-flex">
+        <ul class="slides">
+          {{#each images}}
+          <li>
+            <img src="{{this}}" alt="">
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+
+      <ul class="reset thumbs hidden" id="control-thumbs" {{#lt images.length 1}} data-no-display="true" {{/lt}}>
+        {{#each images}}
+        <li>
+          <img src="{{this}}" alt="">
+        </li>
+        {{/each}}
+      </ul>
+    </div>
+
+    </div>
+    <div class="product-desc col-xs-12 col-sm-6 col-sm-offset-1">
+      <h2>
+        {{title}}
+      </h2>
+       {% endraw %}
+    {% if product.metafields.local.itemcode > '' %}
+      <p>Item Number: {{ product.metafields.local.itemcode }}</p>
+    {% endif %}
+
+      {% raw %}
+         {{ type }}
+      <hr>
+            <p>
+              {{{description}}}
+            </p>
+      <hr>
+
+      <div class="price price-modal">
+        <h3><span class="label">PRICE</span><span class="the-price">
+          {{money price}}
+            {{#lt price compare_at_price_max}}
+              <span class="old-price">{{money compare_at_price_max}}</span>
+            {{/lt}}</span>
+      </h3>
+      </div>
+      
+      {{#if available}}
+      
+  
+        <style>
+          #product-form {
+            display: none;
+          }
+        </style>
+  
+
+        {% endraw %}
+
+ {% raw %}
+      <form action="/cart/add" id="product-form" method="post" enctype="multipart/form-data">
+        <div class="form-group {{#lt variants.length 1}} hidden {{/lt}}">          
+          <div id="product-variants">
+        <select id="product-select-modal" name="id" data-no-pseudo="true">
+          {{#each variants}}
+            <option value="{{ id }}">{{ title }}</option>
+          {{/each}}
+        </select>
+      </div>
+        </div>
+
+		
+        <div class="add-modal">
+
+        <div style="opacity:0;position:absolute;z-index:-10;" class="form-group row">
+          <div class="col-xs-12">
+            <label for="quantity-modal">Quantity</label>
+            <input min="1" type="number" class="qty" id="quantity-modal" name="quantity" value="1" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <button class="button clr2">Add to Cart</button>
+          <a class="cart_checkout" href="/checkout">Proceed to checkout &rarr;</a>
+        </div>
+    	
+    	</div>
+        
+        <div class="form-group soldout-modal hidden">
+          <p>Sold Out</p>
+        </div>
+      </form>
+      
+      {{else}}
+        <h3>OUT OF STOCK</h3>  
+      {{/if}}
+      
+      <div class="product-link"><a href='{{url}}'>Visit product page &rarr;</a></div>
+    {% endraw %}
+    
+      {% raw %}
+    </div>
+
+    </script>
+
+    {% endraw %}
+  </div>
+</div>

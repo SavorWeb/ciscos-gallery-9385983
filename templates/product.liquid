@@ -1,0 +1,375 @@
+<ol class="breadcrumb">
+  <li><a href="{{ shop.url }}">Home</a></li>
+  {% if collection %}
+    <li><a href="{{ collection.url }}">{{ collection.title }}</a></li>
+  {% else %}
+    <li><a href="/collections/all" title="All Products">Products</a></li>
+  {% endif %}
+  <li class="active">{{ product.title }}</li>
+</ol>
+<div class="next-prev">
+   {% if collection %}            
+      {% if collection.previous_product %}
+         {{ '« Previous' | link_to: collection.previous_product }}
+      {% endif %}
+      {% if collection.next_product %}
+        {% if collection.previous_product %} | {% endif %}
+        {{ 'Next »' | link_to: collection.next_product }}
+      {% endif %}
+   {% endif %}
+</div>
+<div class="product row">
+  <div class="product-image col-xs-12 col-sm-5">
+    <div class="product-flex">
+      <div class="flexslider product-flexslider">
+        <ul class="slides">
+          {% assign n = 0 %}
+          {% for image in product.images %}
+            <li data-thumb="{{ image | product_img_url: 'large' }}">
+              <img data-owl='{{n}}' src="{{ image | product_img_url: 'large' }}" alt="{{ image.alt | escape }}">
+              {% assign n = n | plus: 1 %}
+              <p>{{ image.alt }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <ul class="reset thumbs {% if n == 1 %}hidden{% endif %}" id="product-thumbs">
+        {% for image in product.images %}
+          <li><img src="{{ image | product_img_url: 'medium' }}" alt="{{ image.alt | escape }}"></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="product-desc col-xs-12 col-sm-6 col-sm-offset-1">
+    <!-- <div class="type">{{ product.type | capitalize }}</div> -->
+    <h2>
+      {{ product.title | capitalize }}
+    </h2>
+    <p>Item Number: {{ product.handle }}</p>
+<!--     {% if product.metafields.local.itemcode > '' %}
+      <p>Item Number: {{ product.metafields.local.itemcode }}</p>
+    {% endif %} -->
+<hr>
+      {{ product.content }}
+      <!-- {% include 'metafields' %} -->
+
+<hr>
+    <div class="price" id="product-price">
+      <h3>
+        <span class="label">PRICE</span>
+        <span class="the-price">{{ product.price | money }}</span>
+        
+        {% if product.compare_at_price_max > product.price %}
+          <span class="old-price">{{ product.compare_at_price_max | money }}</span>
+        {% endif %}
+      </h3>
+    </div>
+    
+    {% if product.available %}
+    <form action="/cart/add" id="product-form" method="post" enctype="multipart/form-data">
+      <div class="add">
+
+      <div class="form-group row the-quantity">
+        <div class="col-xs-12">
+          <label for="quantity">Quantity</label>
+          <input min="1" type="number" class="qty" id="quantity" name="quantity" value="1" />
+        </div>
+      </div>
+
+      <div class="form-group cart-btn">
+        <button class="button clr2">Add to Cart</button>
+        <a class="cart_checkout" href="/checkout">Proceed to checkout &rarr;</a>
+        <p>Learn more about this one-of-a-kind item, or order over the phone: (208) 769-7575</p>
+      </div>
+
+      </div>
+    {% if product.variants.size > 1 %}
+      <div id="product-variants">
+        <select id="product-select" name="id" data-no-pseudo="true">
+          {% for variant in product.variants %}
+            <option value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    
+      
+      <script>
+        // <![CDATA[  
+        var selectCallback = function(variant, selector) {
+          if (variant) {
+            if (variant.available) {
+              $(".add").removeClass("hidden");
+            $(".soldout").addClass("hidden");
+              
+            } else {
+              $(".add").addClass("hidden");
+            $(".soldout").removeClass("hidden");                     
+            }
+            // Whether the variant is in stock or not, we can update the price and compare at price.
+            if ( variant.compare_at_price > variant.price ) {
+              $('#product-price').html('<h3><span class="label">PRICE</span><span class="the-price">'+ Shopify.formatMoney(variant.price, "{{shop.money_format}}") +'</span><span class="old-price">'+Shopify.formatMoney(variant.compare_at_price, "{{shop.money_format}}")+ '</span></h3>');
+            } else {
+              $('#product-price').html('<h3><span class="label">PRICE</span><span class="the-price">'+ Shopify.formatMoney(variant.price, "{{shop.money_format}}") + '</span></h3>' );
+            }        
+          }
+          
+          $(document).trigger('ultron/select');
+        }
+        // initialize multi selector for product
+        jQuery(function($) {
+          new Shopify.OptionSelectors("product-select", { product: {{ product | json }}, onVariantSelected: selectCallback });
+        });
+        // ]]>
+      </script>
+    {% else %}
+      <input type="hidden" name="id" value="{{ product.variants.first.id }}" />
+    {% endif %}
+
+      <div class="form-group soldout hidden">
+        <p>Sold Out</p>
+      </div>
+    </form>
+    {% else %}
+      <h3 class="out-of-stock">OUT OF STOCK</h3>
+    {% endif %}
+<hr>
+
+<!--     <div class="email">
+      Need help ? <span class="icon-mail"></span> <a href="mailto:{{settings.contact-email}}">Contact us</a>
+    </div> -->
+
+    <div class="share">
+
+    {% include 'add-to-wishlist' %}
+
+      <div class="share-wrap">
+        <a href="https://twitter.com/share" class="twitter-share-button" data-text="Check out {{ product.title | escape }} from {{ shop.name | escape }}">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>      
+      </div>
+      <div class="share-wrap">
+        <a href="//pinterest.com/pin/create/button/?url={{ shop.url }}{{ product.url }}&amp;media={{ product.featured_image | product_img_url: 'grande' }}&amp;description={{ product.title | escape }} from {{ shop.name | escape }}" data-pin-do="buttonPin" data-pin-config="none"><img src="//assets.pinterest.com/images/pidgets/pin_it_button.png" /></a>
+      <script type="text/javascript" async src="//assets.pinterest.com/js/pinit.js"></script>
+      </div>
+      <div class="share-wrap">
+        <div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+      <div style="display: inline-block;" class="fb-like" data-href="{{ shop.url }}{{ product.url }}" data-send="false" data-layout="button_count" data-width="90" data-show-faces="false"></div>
+      </div>
+      <div class="share-wrap">
+        <!-- Place this tag where you want the +1 button to render. -->
+<div class="g-plusone" data-size="tall" data-annotation="none"></div>
+
+<!-- Place this tag after the last +1 button tag. -->
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/platform.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+      </div>
+
+      <!-- end of share -->
+    </div>
+    
+    {% if settings.show_tags and product.tags.size > 0 %}
+    <div class="tags">
+      <ul class="reset li-inline">
+        {% for tag in product.tags %}
+          <li>{{ tag }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if settings.show_related_products %}
+
+<div class="content-heading">
+<hr>
+  <h4 class="p0 m0">Related Items</h4>
+  <p class="m0 p0">
+    You may also like these products
+  </p>
+  <hr>
+</div>
+
+<!-- FEATURED PRODUCTS (GRID) -->
+
+<ul class="grid">
+  <div class="loader center">{{ 'loading.GIF' | asset_url | img_tag }}</div>
+  {% if collection and collection.all_products_count > 1 %}
+    {% assign col = collection.handle %}
+  {% else %}
+  	{% if product.collections.last.handle %}
+      {% assign col = product.collections.last.handle %}
+  	{% else %}
+  	  {% assign col = collections['all'].handle %}
+  	{% endif %}
+  {% endif %}
+
+  {% for product in collections[col].products limit: 4 %}
+    {% include 'pin' %}
+  {% endfor %}
+</ul>
+
+{% endif %}
+
+<div class="full-screen">
+  <button class="close-owl icon-cross"></button>
+  <div id="full-flex">
+    <button class="owl-prev-display icon-arrow-left"></button>
+    <div id="display" class="own-carousel">
+      {% for image in product.images %}
+        <div class="item">
+          <div><img src="{{ image | product_img_url: 'grande' }}" alt="{{ image.alt | escape }}"></div>
+        </div>
+      {% endfor %}
+    </div>    
+    <button class="owl-next-display icon-uniE600"></button>
+  </div>
+
+  <div class="full-control">
+    <span>{{product.title}}</span>
+    <button class="owl-prev icon-arrow-left"></button>
+    {% assign n = 0 %}
+    <div id="tray" class="owl-carousel">
+      {% for image in product.images %}
+        <div><img src="{{ image | product_img_url: 'medium' }}" alt="{{ image.alt | escape }}" data-transition="{{n}}"></div>
+        {% assign n = n | plus: 1 %}
+      {% endfor %}
+    </div>
+    <button class="owl-next icon-uniE600"></button>
+  </div>
+</div>
+
+<div class="content-heading">
+<hr>
+  <h4 class="p0 m0">Recently Viewed</h4>
+  <p class="m0 p0">
+    Remember these?
+  </p>
+  <hr>
+</div>
+
+{% include 'recently-viewed' %}
+
+<script>
+{% if settings.enable-slideshow %}
+  ;(function() {
+    $("#full-flex").css({
+      height: "" + ($(window).height() - 150) + "px"
+    });
+
+    $(document).ready(function() {
+      var hide_slideshow, i, owl, owl_visible, show_slideshow, tray, _elm, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _slideshow;
+
+      tray = $("#tray");
+
+      owl = $("#display");
+
+      _slideshow = $(".full-screen");
+
+      owl_visible = false;
+
+      show_slideshow = function() {
+        if ($(window).width() < 500) {
+          return console.log('less');
+        } else {
+          _slideshow.fadeIn();
+          return owl_visible = true;
+        }
+      };
+
+      hide_slideshow = function() {
+        _slideshow.fadeOut();
+        return owl_visible = false;
+      };
+
+      $(document).on('ultron/hide-slideshow', function() { hide_slideshow(); });
+
+      tray.owlCarousel({
+        rewindSpeed: 1800,
+      });
+
+      var _thumbs;
+      _thumbs = $('[data-transition]');
+      $(_thumbs[0]).addClass("selected");
+
+      owl.owlCarousel({
+        singleItem: true,
+        slideSpeed: 400,
+        rewindSpeed: 2000,
+        afterMove : function()
+        {
+          _thumbs.removeClass("selected");
+          $(_thumbs[owl.data("owlCarousel").currentItem]).addClass("selected");
+        }
+      });
+
+      $(".owl-prev, .owl-prev-display").click(function() {
+        owl.trigger('owl.prev');
+        tray.trigger('owl.prev');
+      });
+
+      $(".owl-next, .owl-next-display").click(function() {
+        owl.trigger('owl.next');
+        tray.trigger('owl.next');
+      });
+
+      _slide = function(arg)
+      {
+        var slide;
+        slide = $(this).data(arg);
+        owl.trigger('owl.goTo', slide);
+        tray.trigger('owl.goTo', slide);
+      }
+
+      $("[data-owl]").click(function() {
+        _slide.apply(this, ["owl"]);
+
+        show_slideshow();
+      });
+
+      $("[data-transition]").click(function() {
+        _slide.apply(this, ["transition"]);
+      });
+
+      $('.close-owl').click(function() {
+        return hide_slideshow();
+      });
+
+      $(window).resize(function() {
+        $("#full-flex").css({
+          height: "" + ($(window).height() - 150) + "px"
+        });
+        if ($(window).width() < 500 && owl_visible) {
+          return hide_slideshow();
+        }
+      });
+
+    });
+  })();
+
+{% endif %}
+
+  $(window).load(function() {
+    var flex = $('.product-flexslider').flexslider({
+      smoothHeight: true,
+      controlNav: true,
+      directionNav: false,
+      prevText: "",          
+      nextText: "",
+      slideshow: true,
+      manualControls: "#product-thumbs li img",
+    });
+  });
+</script>
