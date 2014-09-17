@@ -52,8 +52,9 @@
     {% endif %} -->
 <hr>
       {{ product.content }}
-      <!-- {% include 'metafields' %} -->
-
+      {% if settings.show_metafields2 %}
+        {% include 'metafields' %}
+      {% endif %}
 <hr>
     <div class="price" id="product-price">
       <h3>
@@ -209,11 +210,11 @@
   {% if collection and collection.all_products_count > 1 %}
     {% assign col = collection.handle %}
   {% else %}
-  	{% if product.collections.last.handle %}
+    {% if product.collections.last.handle %}
       {% assign col = product.collections.last.handle %}
-  	{% else %}
-  	  {% assign col = collections['all'].handle %}
-  	{% endif %}
+    {% else %}
+      {% assign col = collections['all'].handle %}
+    {% endif %}
   {% endif %}
 
   {% for product in collections[col].products limit: 4 %}
@@ -251,6 +252,8 @@
   </div>
 </div>
 
+{% if settings.show_recent_products %}
+
 <div class="content-heading">
 <hr>
   <h4 class="p0 m0">Recently Viewed</h4>
@@ -261,6 +264,8 @@
 </div>
 
 {% include 'recently-viewed' %}
+
+{% endif %}
 
 <script>
 {% if settings.enable-slideshow %}

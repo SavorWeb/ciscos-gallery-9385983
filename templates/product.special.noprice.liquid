@@ -43,7 +43,9 @@
 <hr>
       {{ product.content }}
 
-      <!-- {% include 'metafields' %} -->
+      {% if settings.show_metafields2 %}
+        {% include 'metafields' %}
+      {% endif %}
 
 <hr>
     <div class="price" id="product-price">
